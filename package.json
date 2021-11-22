@@ -16,5 +16,8 @@
   "bugs": {
     "url": "https://github.com/papoita/tinyapp/issues"
   },
-  "homepage": "https://github.com/papoita/tinyapp#readme"
+  "homepage": "https://github.com/papoita/tinyapp#readme",
+  "dependencies": {
+    "express": "^4.17.1"
+  }
 }
