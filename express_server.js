@@ -11,7 +11,7 @@ app.set("view engine", "ejs"); //this is how we are processing views
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.use(express.static(__dirname + "/public"));
+//app.use(express.static(__dirname + "/public"));
 
 const urlDatabase = {
 	b2xVn2: "http://www.lighthouselabs.ca",
@@ -44,9 +44,17 @@ app.get("/urls", (req, res) => {
 	const templateVars = { urls: urlDatabase };
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
 });
+app.post("/urls", (req, res) => {
+	const shortURL = generateRandomString(6);
+	urlDatabase[shortURL] = req.body.longURL;
+	console.log(urlDatabase); // Log the POST request body to the console
+	return res.redirect("/urls${shortURL}"); // Respond with 'Ok' (we will replace this)
+});
+
 app.get("/urls/new", (req, res) => {
 	res.render("urls_new");
 });
+
 app.get("/urls/:shortURL", (req, res) => {
 	// : for dynamic purposes to req.params
 	console.log(req.params.shortURL);
@@ -61,18 +69,13 @@ app.get("/u/:shortURL", (req, res) => {
 	return res.redirect(longURL);
 });
 
-app.post("/urls", (req, res) => {
-	const shortURL = generateRandomString(6);
-	urlDatabase[shortURL] = req.body.longURL;
-	console.log(urlDatabase); // Log the POST request body to the console
-	return res.redirect("/urls${shortURL}"); // Respond with 'Ok' (we will replace this)
-});
 //how to delete? test
 app.post("/urls/:shortURL/delete", (req, res) => {
-	const shortURL = req.params.shortURL;
-	console.log(urlDatabase[shortURL]);
-	delete urlDatabase[shortURL];
-	return res.redirect("/urls");
+	// const shortURL = req.params.shortURL;
+	// console.log(urlDatabase[shortURL]);
+	// // delete urlDatabase[shortURL];
+	// return res.redirect("/urls");
+	console.log("testing");
 });
 
 app.listen(PORT, () => {
