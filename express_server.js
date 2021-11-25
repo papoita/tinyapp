@@ -24,7 +24,6 @@ function generateRandomString() {
 
 	return result;
 }
-generateRandomString(6);
 
 app.get("/", (req, res) => {
 	res.send("Hello!");
@@ -49,18 +48,17 @@ app.get("/urls/:shortURL", (req, res) => {
 	const templateVars = { shortURL, longURL };
 	res.render("urls_show", templateVars);
 });
-//example variables exercise
-// app.get("/set", (req, res) => {
-// 	const a = 1;
-// 	res.send(`a = ${a}`);
-// });
 
-// app.get("/fetch", (req, res) => {
-// 	res.send(`a = ${a}`);
-// });
+app.get("/u/:shortURL", (req, res) => {
+	const longURL = urlDatabase[req.params.shortURL];
+	res.redirect(longURL);
+});
+
 app.post("/urls", (req, res) => {
-	console.log(req.body); // Log the POST request body to the console
-	res.send("Ok"); // Respond with 'Ok' (we will replace this)
+	const shortURL = generateRandomString(6);
+	urlDatabase[shortURL] = req.body.longURL;
+	console.log(urlDatabase); // Log the POST request body to the console
+	res.redirect("/urls${shortURL}"); // Respond with 'Ok' (we will replace this)
 });
 app.listen(PORT, () => {
 	console.log(`Example app listening on port ${PORT}!`);
