@@ -69,14 +69,23 @@ app.get("/u/:shortURL", (req, res) => {
 	return res.redirect(longURL);
 });
 
-//how to delete? test
+app.post("/urls/:shortURL/edit", (req, res) => {
+	//urlDatabase[req.params.shortURL] = req.body.longURL;
+	//const shortURL = req.params.shortURL;
+	//const longURL = urlDatabase[shortURL];
+	return res.redirect("/urls/index");
+});
+
 app.post("/urls/:shortURL/delete", (req, res) => {
 	const shortURL = req.params.shortURL;
 	console.log(urlDatabase[shortURL]);
 	delete urlDatabase[shortURL];
 	return res.redirect("/urls");
 });
-
+app.get("* "),
+	(req, res) => {
+		res.send("I don't know that path");
+	};
 app.listen(PORT, () => {
 	console.log(`Example app listening on port ${PORT}!`);
 });
