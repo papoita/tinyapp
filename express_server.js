@@ -52,7 +52,9 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+	console.log("this ia line");
 	res.render("urls_new");
+	return res.redirect("/urls");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
@@ -71,11 +73,10 @@ app.get("/u/:shortURL", (req, res) => {
 
 //how to delete? test
 app.post("/urls/:shortURL/delete", (req, res) => {
-	// const shortURL = req.params.shortURL;
-	// console.log(urlDatabase[shortURL]);
-	// // delete urlDatabase[shortURL];
-	// return res.redirect("/urls");
-	console.log("testing");
+	const shortURL = req.params.shortURL;
+	console.log(urlDatabase[shortURL]);
+	delete urlDatabase[shortURL];
+	return res.redirect("/urls");
 });
 
 app.listen(PORT, () => {
