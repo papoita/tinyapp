@@ -52,9 +52,7 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
-	console.log("this ia line");
 	res.render("urls_new");
-	return res.redirect("/urls");
 });
 
 app.get("/urls/:shortURL", (req, res) => {
