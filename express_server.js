@@ -2,12 +2,14 @@
 
 const express = require("express");
 //const morgan = require("morgan");
+const cookieParser = require("cookie-parser");
 const app = express();
 const PORT = 8080; // default port 8080
+
 app.set("view engine", "ejs"); //this is how we are processing views
 
 //app.use(morgan("dev"));
-
+app.use(cookieParser());
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true }));
 
@@ -49,6 +51,13 @@ app.post("/urls", (req, res) => {
 	urlDatabase[shortURL] = req.body.longURL;
 	console.log(urlDatabase); // Log the POST request body to the console
 	return res.redirect("/urls${shortURL}"); // Respond with 'Ok' (we will replace this)
+});
+
+app.post("/urls/login", (req, res) => {
+	let cookie = req.body.login;
+	res.cookie("username", 1);
+	console.log(`username = ${cookie}`);
+	return res.redirect("/urls"); // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls/new", (req, res) => {
