@@ -42,7 +42,10 @@ app.get("/hello", (req, res) => {
 });
 //read main page
 app.get("/urls", (req, res) => {
-	const templateVars = { urls: urlDatabase };
+	const templateVars = {
+		username: req.cookies["username"],
+		urls: urlDatabase,
+	};
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
 });
 app.post("/login", (req, res) => {
