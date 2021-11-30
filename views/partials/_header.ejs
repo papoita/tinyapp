@@ -38,11 +38,17 @@
 				<% } %>
 				
 				<% if(username){ %>
-				<div class="navbar-nav justify-content-end">Welcome </div>
-				<div><%= username %> </div>
-				<button type="submit" class="btn btn-light" action="/logout"
-						method="POST">Logout</button>
+				<div class="navbar-nav justify-content-end" style= "color: azure" ><h4>Welcome:  </h4>  </div>
+				<div class="navbar-nav justify-content-end" style= "color: azure">  <h4> <%= username %> !</h4></div>
+				<form
+						class="form-inline "
+						action="/logout"
+						method="POST"
+						style="width: 30px; margin: 1em"
+					>
+				<button type="submit" class="btn btn-secondary " >Logout</button>
 				<% } %>
+				</form>
 			</div>			
 		</div>
 	</nav>
