@@ -54,20 +54,22 @@ app.get("/hello", (req, res) => {
 });
 //read main page
 app.get("/urls", (req, res) => {
-	const username = req.cookies["username"];
-	console.log("=====", username);
+	const id = req.cookies.user_id;
+	const user = users[id];
 	const templateVars = {
-		username,
 		urls: urlDatabase,
+		user,
 	};
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
 });
+
 app.post("/login", (req, res) => {
 	const username = req.body.username;
 	res.cookie("username", username);
 	console.log(`username = ${username}`);
 	return res.redirect("/urls");
 });
+
 app.post("/logout", (req, res) => {
 	const username = req.body.username;
 	res.cookie("username", username);
@@ -84,41 +86,42 @@ app.post("/urls", (req, res) => {
 	return res.redirect(`/urls/${shortURL}`); // Respond with 'Ok' (we will replace this)
 });
 
-app.get("/urls/register", (req, res) => {
-	const username = req.cookies["username"];
-	res.render("urls_registration", { username });
+app.get("/register", (req, res) => {
+	const user = null;
+	res.render("urls_registration", { user });
 });
 
-app.post("/urls/register", (req, res) => {
+app.post("/register", (req, res) => {
+	console.log(req.body);
 	const email = req.body.email;
 	const password = req.body.password;
-	const user_id = generateRandomString(6);
+	const id = generateRandomString(6);
 	//debugging an undefined email and password
 	// console.log("id", id);
 	// console.log("email", email);
 	// console.log("psw", password);
 	// console.log("reqparams", req.body);
 	// return res.end("hello paola");
-	users[user_id] = { user_id, email, password }; //object should be addded to the global users object
+	users[id] = { id, email, password }; //object should be addded to the global users object
 	console.log("New users object", users);
-	res.cookie("user_id", user_id);
+	res.cookie("user_id", id);
 	return res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
-	const username = req.cookies["username"];
-	res.render("urls_new", { username });
+	const id = req.cookies.user_id;
+	const user = users[id];
+	res.render("urls_new", { user });
 });
 
 app.get("/urls/:shortURL", (req, res) => {
-	const username = req.cookies["username"];
-	// : for dynamic purposes to req.params
-	console.log(req.params.shortURL);
+	const id = req.cookies.user_id;
+	const user = users[id];
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
 	console.log("shortURL", shortURL);
 	console.log("longURL", longURL);
-	const templateVars = { shortURL, longURL, username };
+	const templateVars = { shortURL, longURL, user };
 	res.render("urls_show", templateVars);
 });
 
@@ -128,11 +131,12 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-	const username = req.cookies["username"];
+	const id = req.cookies.user_id;
+	const user = users[id];
 	//urlDatabase[req.params.shortURL] = req.body.longURL;
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
-	const templateVars = { shortURL, longURL, username };
+	const templateVars = { shortURL, longURL, user };
 	return res.render("urls_show", templateVars);
 });
 
