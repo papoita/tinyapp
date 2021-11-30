@@ -11,6 +11,18 @@ const urlDatabase = {
 	b2xVn2: "http://www.lighthouselabs.ca",
 	"9sm5xK": "http://www.google.com",
 };
+const users = {
+	userRandomID: {
+		id: "userRandomID",
+		email: "user@example.com",
+		password: "purple-monkey-dinosaur",
+	},
+	user2RandomID: {
+		id: "user2RandomID",
+		email: "user2@example.com",
+		password: "dishwasher-funk",
+	},
+};
 
 function generateRandomString() {
 	var result = "";
@@ -77,6 +89,22 @@ app.get("/urls/register", (req, res) => {
 	res.render("urls_registration", { username });
 });
 
+app.post("/urls/register", (req, res) => {
+	const email = req.body.email;
+	const password = req.body.password;
+	const id = generateRandomString(6);
+	//debugging an undefined email and password
+	// console.log("id", id);
+	// console.log("email", email);
+	// console.log("psw", password);
+	// console.log("reqparams", req.body);
+	// return res.end("hello paola");
+	users[id] = { id, email, password }; //object should be addded to the global users object
+	console.log("New users object", users);
+	res.cookie("user_id", id);
+	return res.redirect("/urls");
+});
+
 app.get("/urls/new", (req, res) => {
 	const username = req.cookies["username"];
 	res.render("urls_new", { username });
@@ -85,7 +113,6 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
 	const username = req.cookies["username"];
 	// : for dynamic purposes to req.params
-
 	console.log(req.params.shortURL);
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
