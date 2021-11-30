@@ -60,7 +60,7 @@ app.post("/logout", (req, res) => {
 	const username = req.body.username;
 	res.cookie("username", username);
 	res.clearCookie("username", username);
-	
+
 	return res.redirect("/urls");
 });
 
@@ -70,6 +70,11 @@ app.post("/urls", (req, res) => {
 	urlDatabase[shortURL] = req.body.longURL;
 	console.log(urlDatabase); // Log the POST request body to the console
 	return res.redirect(`/urls/${shortURL}`); // Respond with 'Ok' (we will replace this)
+});
+
+app.get("/urls/register", (req, res) => {
+	const username = req.cookies["username"];
+	res.render("urls_registration", { username });
 });
 
 app.get("/urls/new", (req, res) => {
