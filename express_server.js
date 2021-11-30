@@ -92,16 +92,16 @@ app.get("/urls/register", (req, res) => {
 app.post("/urls/register", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
-	const id = generateRandomString(6);
+	const user_id = generateRandomString(6);
 	//debugging an undefined email and password
 	// console.log("id", id);
 	// console.log("email", email);
 	// console.log("psw", password);
 	// console.log("reqparams", req.body);
 	// return res.end("hello paola");
-	users[id] = { id, email, password }; //object should be addded to the global users object
+	users[user_id] = { user_id, email, password }; //object should be addded to the global users object
 	console.log("New users object", users);
-	res.cookie("user_id", id);
+	res.cookie("user_id", user_id);
 	return res.redirect("/urls");
 });
 
