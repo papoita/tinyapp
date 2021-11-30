@@ -42,8 +42,10 @@ app.get("/hello", (req, res) => {
 });
 //read main page
 app.get("/urls", (req, res) => {
+	const username = req.cookies["username"];
+	console.log("=====", username);
 	const templateVars = {
-		username: req.cookies["username"],
+		username,
 		urls: urlDatabase,
 	};
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
@@ -54,25 +56,37 @@ app.post("/login", (req, res) => {
 	console.log(`username = ${username}`);
 	return res.redirect("/urls");
 });
+app.post("/logout", (req, res) => {
+	const username = req.body.username;
+	res.cookie("username", username);
+	res.clearCookie("username", username);
+	
+	return res.redirect("/urls");
+});
+
 //create short url
 app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
 	urlDatabase[shortURL] = req.body.longURL;
 	console.log(urlDatabase); // Log the POST request body to the console
-	return res.redirect("/urls/${shortURL}"); // Respond with 'Ok' (we will replace this)
+	return res.redirect(`/urls/${shortURL}`); // Respond with 'Ok' (we will replace this)
 });
 
 app.get("/urls/new", (req, res) => {
-	res.render("urls_new");
+	const username = req.cookies["username"];
+	res.render("urls_new", { username });
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+	const username = req.cookies["username"];
 	// : for dynamic purposes to req.params
 
 	console.log(req.params.shortURL);
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
-	const templateVars = { shortURL, longURL };
+	console.log("shortURL", shortURL);
+	console.log("longURL", longURL);
+	const templateVars = { shortURL, longURL, username };
 	res.render("urls_show", templateVars);
 });
 
@@ -82,10 +96,11 @@ app.get("/u/:shortURL", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
+	const username = req.cookies["username"];
 	//urlDatabase[req.params.shortURL] = req.body.longURL;
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
-	const templateVars = { shortURL, longURL };
+	const templateVars = { shortURL, longURL, username };
 	return res.render("urls_show", templateVars);
 });
 

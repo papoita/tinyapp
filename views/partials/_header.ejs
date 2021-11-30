@@ -18,7 +18,7 @@
 			<div class="navbar-nav">
 				<a class="nav-item nav-link" href="/urls">My URLs</a>
 				<a class="nav-item nav-link" href="/urls/new">Create New URL</a>
-				<% if(!username){ %>
+	<% if(!username){ %>
 				<div class="navbar-nav justify-content-end">
 					<form
 						class="form-inline align-items-right"
@@ -35,11 +35,15 @@
 						<button type="submit" class="btn btn-light">Login</button>
 					</form>
 				</div>
-				<% } %> <% if(username){ %>
-				<div class="navbar-nav justify-content-end">Welcome</div>
-				<div><%= username %> <% } %></div>
 				<% } %>
-			</div>
+				
+				<% if(username){ %>
+				<div class="navbar-nav justify-content-end">Welcome </div>
+				<div><%= username %> </div>
+				<button type="submit" class="btn btn-light" action="/logout"
+						method="POST">Logout</button>
+				<% } %>
+			</div>			
 		</div>
 	</nav>
 </header>
