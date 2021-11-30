@@ -68,6 +68,7 @@ app.get("/urls/new", (req, res) => {
 
 app.get("/urls/:shortURL", (req, res) => {
 	// : for dynamic purposes to req.params
+
 	console.log(req.params.shortURL);
 	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL];
