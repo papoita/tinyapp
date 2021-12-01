@@ -91,10 +91,10 @@ app.post("/login", (req, res) => {
 	}
 	const userExists = findUserByEmail(email);
 	if (!userExists) {
-		return res.status(404).send("User not found please register");
+		return res.status(403).send("User not found please register");
 	}
 	if (userExists.password !== password) {
-		return res.status(401).send("Try again: wrong password");
+		return res.status(403).send("Try again: wrong password");
 	}
 
 	//users[id] = { id, email, password };
