@@ -96,11 +96,6 @@ app.post("/login", (req, res) => {
 	if (userExists.password !== password) {
 		return res.status(403).send("Try again: wrong password");
 	}
-
-	//users[id] = { id, email, password };
-
-	// const id = req.cookies.user_id;
-
 	res.cookie("user_id", userExists.id);
 	return res.redirect("/urls");
 });
