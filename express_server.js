@@ -82,13 +82,26 @@ app.get("/login", (req, res) => {
 app.post("/login", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
+	if (!email || !password) {
+		// return res.status(400).send("Please enter a valid email and password");
+		return res.render("urls_registration", {
+			user: null,
+			error: "Try again: enter a valid email and password",
+		});
+	}
+	const userExists = findUserByEmail(email);
+	if (!userExists) {
+		return res.status(404).send("User not found please register");
+	}
+	if (userExists.password !== password) {
+		return res.status(401).send("Try again: wrong password");
+	}
 
-	const id = req.cookies.user_id;
-	res.cookie("user_id", id);
+	//users[id] = { id, email, password };
 
-	// if (userExists.password !== password) {
-	// 	return res.status(400).send("Try again: wrong password");
-	// }
+	// const id = req.cookies.user_id;
+
+	res.cookie("user_id", userExists.id);
 	return res.redirect("/urls");
 });
 
@@ -110,6 +123,7 @@ app.post("/register", (req, res) => {
 	const password = req.body.password;
 	if (!email || !password) {
 		// return res.status(400).send("Please enter a valid email and password");
+		res.status(400);
 		return res.render("urls_registration", {
 			user: null,
 			error: "Try again: enter a valid email and password",
@@ -117,7 +131,7 @@ app.post("/register", (req, res) => {
 	}
 	const userExists = findUserByEmail(email);
 	if (userExists) {
-		return res.status(400).send("Try again: email already exists");
+		return res.status(401).send("Try again: email already exists");
 	}
 	const id = generateRandomString(6);
 	users[id] = { id, email, password };
@@ -125,6 +139,7 @@ app.post("/register", (req, res) => {
 	res.cookie("user_id", id);
 	return res.redirect("/urls");
 });
+
 //create short url
 app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
