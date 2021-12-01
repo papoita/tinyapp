@@ -74,6 +74,11 @@ app.get("/urls", (req, res) => {
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
 });
 
+app.get("/login", (req, res) => {
+	const user = null;
+	res.render("urls_login", { user, error: null });
+});
+
 app.post("/login", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -94,14 +99,6 @@ app.post("/logout", (req, res) => {
 	return res.redirect("/urls");
 });
 
-//create short url
-app.post("/urls", (req, res) => {
-	const shortURL = generateRandomString(6);
-	urlDatabase[shortURL] = req.body.longURL;
-	console.log(urlDatabase); // Log the POST request body to the console
-	return res.redirect(`/urls/${shortURL}`);
-});
-
 app.get("/register", (req, res) => {
 	const user = null;
 	res.render("urls_registration", { user, error: null });
@@ -118,22 +115,22 @@ app.post("/register", (req, res) => {
 			error: "Try again: enter a valid email and password",
 		});
 	}
-
 	const userExists = findUserByEmail(email);
 	if (userExists) {
 		return res.status(400).send("Try again: email already exists");
 	}
 	const id = generateRandomString(6);
-	//debugging an undefined email and password
-	// console.log("id", id);
-	// console.log("email", email);
-	// console.log("psw", password);
-	// console.log("reqparams", req.body);
-	// return res.end("hello paola");
-	users[id] = { id, email, password }; //object should be addded to the global users object
+	users[id] = { id, email, password };
 	console.log("New users object", users);
 	res.cookie("user_id", id);
 	return res.redirect("/urls");
+});
+//create short url
+app.post("/urls", (req, res) => {
+	const shortURL = generateRandomString(6);
+	urlDatabase[shortURL] = req.body.longURL;
+	console.log(urlDatabase); // Log the POST request body to the console
+	return res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/urls/new", (req, res) => {
