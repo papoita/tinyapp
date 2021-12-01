@@ -6,12 +6,21 @@ const bodyParser = require("body-parser");
 const cookieParser = require("cookie-parser");
 
 const PORT = 8080; // default port 8080
+const app = express();
+
+app.use(morgan("short"));
+app.use(cookieParser());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.set("view engine", "ejs"); //this is how we are processing views
+
+//app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
 
 const urlDatabase = {
 	b2xVn2: "http://www.lighthouselabs.ca",
 	"9sm5xK": "http://www.google.com",
 };
 const users = {
+	//savein browser and validate if user
 	userRandomID: {
 		id: "userRandomID",
 		email: "user@example.com",
@@ -22,6 +31,16 @@ const users = {
 		email: "user2@example.com",
 		password: "dishwasher-funk",
 	},
+};
+//helper function find if user exists
+const findUserByEmail = (email) => {
+	for (const user_id in users) {
+		const user = users[user_id];
+		if (user.email === email) {
+			return user;
+		}
+	}
+	return null;
 };
 
 function generateRandomString() {
@@ -35,14 +54,6 @@ function generateRandomString() {
 
 	return result;
 }
-
-const app = express();
-app.use(morgan("short"));
-app.use(cookieParser());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.set("view engine", "ejs"); //this is how we are processing views
-
-//app.use(express.static(__dirname + "/public"));//if wanted to have a css file
 
 app.get("/", (req, res) => {
 	//listen to get request / localhost8080
@@ -64,17 +75,22 @@ app.get("/urls", (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-	const username = req.body.username;
-	res.cookie("username", username);
-	console.log(`username = ${username}`);
+	const email = req.body.email;
+	const password = req.body.password;
+
+	const id = req.cookies.user_id;
+	res.cookie("user_id", id);
+
+	// if (userExists.password !== password) {
+	// 	return res.status(400).send("Try again: wrong password");
+	// }
 	return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-	const username = req.body.username;
-	res.cookie("username", username);
-	res.clearCookie("username", username);
-
+	// const id = req.body.user_id;
+	// res.cookie("user_id", id);
+	res.clearCookie("user_id");
 	return res.redirect("/urls");
 });
 
@@ -83,18 +99,30 @@ app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
 	urlDatabase[shortURL] = req.body.longURL;
 	console.log(urlDatabase); // Log the POST request body to the console
-	return res.redirect(`/urls/${shortURL}`); // Respond with 'Ok' (we will replace this)
+	return res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/register", (req, res) => {
 	const user = null;
-	res.render("urls_registration", { user });
+	res.render("urls_registration", { user, error: null });
 });
 
 app.post("/register", (req, res) => {
 	console.log(req.body);
 	const email = req.body.email;
 	const password = req.body.password;
+	if (!email || !password) {
+		// return res.status(400).send("Please enter a valid email and password");
+		return res.render("urls_registration", {
+			user: null,
+			error: "Try again: enter a valid email and password",
+		});
+	}
+
+	const userExists = findUserByEmail(email);
+	if (userExists) {
+		return res.status(400).send("Try again: email already exists");
+	}
 	const id = generateRandomString(6);
 	//debugging an undefined email and password
 	// console.log("id", id);
