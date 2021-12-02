@@ -127,6 +127,11 @@ app.post("/register", (req, res) => {
 	const userExists = findUserByEmail(email);
 	if (userExists) {
 		return res.status(401).send("Try again: email already exists");
+		//res.status(401);
+		// return res.render("urls_registration", {
+		// 	user: user.email,
+		// 	error: "Try again: email already exists",
+		// });
 	}
 	const id = generateRandomString(6);
 	users[id] = { id, email, password };
