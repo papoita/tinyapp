@@ -16,15 +16,16 @@ app.set("view engine", "ejs"); //this is how we are processing views
 //app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
 
 const urlDatabase = {
-	b2xVn2: "http://www.lighthouselabs.ca",
-	"9sm5xK": "http://www.google.com",
+	b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+	i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
 };
+
 const users = {
 	//savein browser and validate if user
-	userRandomID: {
-		id: "userRandomID",
-		email: "user@example.com",
-		password: "purple-monkey-dinosaur",
+	aJ48lW: {
+		id: "aJ48lW",
+		email: "1@1",
+		password: "1",
 	},
 	user2RandomID: {
 		id: "user2RandomID",
@@ -41,6 +42,24 @@ const findUserByEmail = (email) => {
 		}
 	}
 	return null;
+};
+//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
+
+// const urlDatabase = {
+// 	b2xVn2: "http://www.lighthouselabs.ca",
+// 	"9sm5xK": "http://www.google.com",
+// };
+
+//helper function shoul return an object {shortUrl: longURL} to match our previous database forms
+const urlForUsers = function (userID, urlDatabase) {
+	const newUrlDatabase = {};
+
+	for (let shortURL in urlDatabase) {
+		if (userID === urlDatabase[shortURL].userID) {
+			newUrlDatabase[shortURL] = urlDatabase[shortURL].longURL;
+		}
+	}
+	return newUrlDatabase;
 };
 
 function generateRandomString() {
@@ -66,13 +85,18 @@ app.get("/hello", (req, res) => {
 //read main page
 app.get("/urls", (req, res) => {
 	const id = req.cookies.user_id;
+	console.log(id);
 	const user = users[id];
+	//const newUrlDB = urlForUsers(user, urlDatabase);
+	console.log(urlForUsers(id, urlDatabase));
 	const templateVars = {
-		urls: urlDatabase,
+		urls: urlForUsers(id, urlDatabase),
 		user,
 	};
+	//	console.log(urlForUsers(user, urlDatabase));
 	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
 });
+//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
 app.get("/login", (req, res) => {
 	const user = null;
