@@ -149,8 +149,13 @@ app.post("/urls", (req, res) => {
 });
 
 app.get("/urls/new", (req, res) => {
+	//const userExists = findUserByEmail();
 	const id = req.cookies.user_id;
 	const user = users[id];
+	if (!user) {
+		return res.redirect("/login");
+	}
+
 	res.render("urls_new", { user });
 });
 
