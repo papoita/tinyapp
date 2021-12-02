@@ -87,14 +87,15 @@ app.get("/urls", (req, res) => {
 	const id = req.cookies.user_id;
 	console.log(id);
 	const user = users[id];
-	//const newUrlDB = urlForUsers(user, urlDatabase);
-	console.log(urlForUsers(id, urlDatabase));
+	//console.log(urlForUsers(id, urlDatabase));
 	const templateVars = {
 		urls: urlForUsers(id, urlDatabase),
 		user,
 	};
-	//	console.log(urlForUsers(user, urlDatabase));
-	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
+	if (!user) {
+		return res.status(401).send("To view your tinyUrls please login first");
+	}
+	res.render("urls_index", templateVars);
 });
 //urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
@@ -151,11 +152,6 @@ app.post("/register", (req, res) => {
 	const userExists = findUserByEmail(email);
 	if (userExists) {
 		return res.status(401).send("Try again: email already exists");
-		//res.status(401);
-		// return res.render("urls_registration", {
-		// 	user: user.email,
-		// 	error: "Try again: email already exists",
-		// });
 	}
 	const id = generateRandomString(6);
 	users[id] = { id, email, password };
