@@ -199,7 +199,10 @@ app.get("/urls/:shortURL", (req, res) => {
 });
 
 app.get("/u/:shortURL", (req, res) => {
-	const longURL = urlDatabase[req.params.shortURL];
+		//const id = req.cookies.user_id;
+			const shortURL = req.params.shortURL;
+	const longURL = urlDatabase[shortURL].longURL;
+		urlDatabase[shortURL] = {longURL: req.body.longURL, userID:null};
 	return res.redirect(longURL);
 });
 
