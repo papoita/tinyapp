@@ -86,7 +86,7 @@ app.get("/hello", (req, res) => {
 //read main page
 app.get("/urls", (req, res) => {
 	const id = req.cookies.user_id;
-//	console.log(id);
+	//	console.log(id);
 	const user = users[id];
 	//console.log(urlForUsers(id, urlDatabase));
 	const templateVars = {
@@ -125,7 +125,7 @@ app.post("/login", (req, res) => {
 	}
 	if (userExists.password !== password) {
 		res.status(403);
-			return res.render("urls_login", {
+		return res.render("urls_login", {
 			user: null,
 			error: "Try again: password doesn't match",
 		});
@@ -156,7 +156,7 @@ app.post("/register", (req, res) => {
 	}
 	const userExists = findUserByEmail(email);
 	if (userExists) {
-			res.status(403);
+		res.status(403);
 		return res.render("urls_registration", {
 			user: null,
 			error: "Try again: email already in use",
@@ -172,7 +172,10 @@ app.post("/register", (req, res) => {
 //create short url
 app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
-	urlDatabase[shortURL] = {longURL: req.body.longURL, userID:req.cookies.user_id};
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.cookies.user_id,
+	};
 	//console.log(urlDatabase); // Log the POST request body to the console
 	return res.redirect(`/urls/${shortURL}`);
 });
@@ -192,47 +195,48 @@ app.get("/urls/:shortURL", (req, res) => {
 	const id = req.cookies.user_id;
 	const user = users[id];
 
-const shortURL = req.params.shortURL;
+	const shortURL = req.params.shortURL;
 
-	
 	const longURL = urlDatabase[shortURL].longURL;
-	
+
 	const templateVars = { shortURL, longURL, user };
 	return res.render("urls_show", templateVars);
-	
 });
 
 app.get("/u/:shortURL", (req, res) => {
-		//const id = req.cookies.user_id;
-			const shortURL = req.params.shortURL;
+	const shortURL = req.params.shortURL;
 	const longURL = urlDatabase[shortURL].longURL;
-		urlDatabase[shortURL] = {longURL: req.body.longURL, userID:null};
 	return res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
 	const id = req.cookies.user_id;
 	const shortURL = req.params.shortURL;
-if(urlDatabase[shortURL].userID = id){
-	urlDatabase[shortURL] = {longURL: req.body.longURL, userID:req.cookies.user_id};
-}	
-return res.redirect("/urls/:shortURL");
+	if ((urlDatabase[shortURL].userID = id)) {
+		urlDatabase[shortURL] = {
+			longURL: req.body.longURL,
+			userID: req.cookies.user_id,
+		};
+	}
+	return res.redirect("/urls/:shortURL");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
 	const id = req.cookies.user_id;
 	const shortURL = req.params.shortURL;
-	if(urlDatabase[shortURL].userID = id){
-delete urlDatabase[shortURL];
+	if ((urlDatabase[shortURL].userID = id)) {
+		delete urlDatabase[shortURL];
 	}
 	return res.redirect("/urls");
 });
 
-
 app.post("/urls/:shortURL", (req, res) => {
 	const shortURL = req.params.shortURL;
 
-urlDatabase[shortURL] = {longURL: req.body.longURL, userID:req.cookies.user_id};
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.cookies.user_id,
+	};
 	return res.redirect("/urls");
 });
 
