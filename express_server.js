@@ -11,6 +11,8 @@ const app = express();
 app.use(morgan("short"));
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: false }));
+const bcrypt = require("bcrypt");
+
 app.set("view engine", "ejs"); //this is how we are processing views
 
 //app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
@@ -104,7 +106,7 @@ app.get("/login", (req, res) => {
 	const user = null;
 	res.render("urls_login", { user, error: null });
 });
-
+//TODO comapre passwords
 app.post("/login", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -123,7 +125,8 @@ app.post("/login", (req, res) => {
 			error: "Try again: user doesn't exist",
 		});
 	}
-	if (userExists.password !== password) {
+	//if (userExists.password !== password) {
+	if (!bcrypt.compareSync(password, userExists.hashedPassword)) {
 		res.status(403);
 		return res.render("urls_login", {
 			user: null,
@@ -143,10 +146,11 @@ app.get("/register", (req, res) => {
 	const user = null;
 	res.render("urls_registration", { user, error: null });
 });
-
+//TODO revise if database has to change, correct way to pass in the crypto
 app.post("/register", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
+	const hashedPassword = bcrypt.hashSync(password, 10);
 	if (!email || !password) {
 		res.status(401);
 		return res.render("urls_registration", {
@@ -163,8 +167,8 @@ app.post("/register", (req, res) => {
 		});
 	}
 	const id = generateRandomString(6);
-	users[id] = { id, email, password };
-	//console.log("New users object", users);
+	users[id] = { id, email, hashedPassword }; //check this!!
+	console.log("new objwect hashed", users[id]);
 	res.cookie("user_id", id);
 	return res.redirect("/urls");
 });
