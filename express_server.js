@@ -24,8 +24,8 @@ app.set("view engine", "ejs"); //this is how we are processing views
 //app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
 
 const urlDatabase = {
-	b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
-	i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
+	b6UTxQ: { longURL: "https://www.tsn.ca", userID: "JAZVA6" },
+	i3BoGr: { longURL: "https://www.google.ca", userID: "JAZVA6" },
 };
 
 const users = {
@@ -33,14 +33,21 @@ const users = {
 	aJ48lW: {
 		id: "aJ48lW",
 		email: "1@1",
-		password: "1",
+		hashedPassword: "1",
 	},
 	user2RandomID: {
 		id: "user2RandomID",
 		email: "user2@example.com",
-		password: "dishwasher-funk",
+		hashedPassword: "dishwasher-funk",
+	},
+	JAZVA6: {
+		id: "JAZVA6",
+		email: "2@2",
+		hashedPassword:
+			"$2b$10$Ymt2wBv7I.mrCrZcMKU/nO2xUuTe0G6qqcWlWKOzFMoWsWtEzt7Lu",
 	},
 };
+
 //helper function find if user exists
 const findUserByEmail = (email) => {
 	for (const user_id in users) {
@@ -82,15 +89,10 @@ function generateRandomString() {
 
 	return result;
 }
-
 app.get("/", (req, res) => {
-	//listen to get request / localhost8080
-	res.send("Hello!");
+	return res.redirect("/login");
 });
 
-app.get("/hello", (req, res) => {
-	res.send("<html><body>Hello <b>World</b></body></html>\n");
-});
 //read main page
 app.get("/urls", (req, res) => {
 	const id = req.session.user_id;
@@ -108,6 +110,16 @@ app.get("/urls", (req, res) => {
 });
 //urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
+app.post("/urls", (req, res) => {
+	const shortURL = generateRandomString(6);
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.session.user_id,
+	};
+	//console.log(urlDatabase); // Log the POST request body to the console
+	return res.redirect(`/urls/${shortURL}`);
+});
+
 app.get("/login", (req, res) => {
 	const user = null;
 	res.render("urls_login", { user, error: null });
@@ -124,6 +136,10 @@ app.post("/login", (req, res) => {
 		});
 	}
 	const userExists = findUserByEmail(email);
+	console.log("userExists", userExists);
+	//	console.log("id", id);
+	console.log(userExists.id);
+
 	if (!userExists) {
 		res.status(403);
 		return res.render("urls_login", {
@@ -139,13 +155,14 @@ app.post("/login", (req, res) => {
 			error: "Try again: password doesn't match",
 		});
 	}
-	res.cookie("user_id", userExists.id);
+	console.log("userexists?", userExists.id);
+	req.session.user_id = userExists.id;
 	return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-	res.clearCookie("user_id");
-	return res.redirect("/urls");
+	req.session = null;
+	return res.redirect("/");
 });
 
 app.get("/register", (req, res) => {
@@ -175,19 +192,8 @@ app.post("/register", (req, res) => {
 	const id = generateRandomString(6);
 	users[id] = { id, email, hashedPassword }; //check this!!
 	console.log("new objwect hashed", users[id]);
-	res.cookie("user_id", id);
+	req.session.user_id = id;
 	return res.redirect("/urls");
-});
-
-//create short url
-app.post("/urls", (req, res) => {
-	const shortURL = generateRandomString(6);
-	urlDatabase[shortURL] = {
-		longURL: req.body.longURL,
-		userID: req.session.user_id,
-	};
-	//console.log(urlDatabase); // Log the POST request body to the console
-	return res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/urls/new", (req, res) => {
@@ -225,7 +231,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 	if ((urlDatabase[shortURL].userID = id)) {
 		urlDatabase[shortURL] = {
 			longURL: req.body.longURL,
-			userID: req.cookies.user_id,
+			userID: req.session.user_id,
 		};
 	}
 	return res.redirect("/urls/:shortURL");
