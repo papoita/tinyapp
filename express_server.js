@@ -128,7 +128,7 @@ app.post("/login", (req, res) => {
 	const userExists = findUserByEmail(email, users);
 	console.log("userExists", userExists);
 	//	console.log("id", id);
-	console.log(userExists.id);
+	//console.log(userExists.id);
 
 	if (!userExists) {
 		res.status(403);
