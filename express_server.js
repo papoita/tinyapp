@@ -16,15 +16,16 @@ app.set("view engine", "ejs"); //this is how we are processing views
 //app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
 
 const urlDatabase = {
-	b2xVn2: "http://www.lighthouselabs.ca",
-	"9sm5xK": "http://www.google.com",
+	b6UTxQ: { longURL: "https://www.tsn.ca", userID: "aJ48lW" },
+	i3BoGr: { longURL: "https://www.google.ca", userID: "aJ48lW" },
 };
+
 const users = {
 	//savein browser and validate if user
-	userRandomID: {
-		id: "userRandomID",
-		email: "user@example.com",
-		password: "purple-monkey-dinosaur",
+	aJ48lW: {
+		id: "aJ48lW",
+		email: "1@1",
+		password: "1",
 	},
 	user2RandomID: {
 		id: "user2RandomID",
@@ -35,12 +36,31 @@ const users = {
 //helper function find if user exists
 const findUserByEmail = (email) => {
 	for (const user_id in users) {
-		const user = users[user_id];
-		if (user.email === email) {
-			return user;
+		//const user = users[user_id];
+		console.log("test", users[user_id]);
+		if (users[user_id].email === email) {
+			return users[user_id];
 		}
 	}
 	return null;
+};
+//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
+
+// const urlDatabase = {
+// 	b2xVn2: "http://www.lighthouselabs.ca",
+// 	"9sm5xK": "http://www.google.com",
+// };
+
+//helper function shoul return an object {shortUrl: longURL} to match our previous database forms
+const urlForUsers = function (userID, urlDatabase) {
+	const newUrlDatabase = {};
+
+	for (let shortURL in urlDatabase) {
+		if (userID === urlDatabase[shortURL].userID) {
+			newUrlDatabase[shortURL] = urlDatabase[shortURL];
+		}
+	}
+	return newUrlDatabase;
 };
 
 function generateRandomString() {
@@ -66,13 +86,19 @@ app.get("/hello", (req, res) => {
 //read main page
 app.get("/urls", (req, res) => {
 	const id = req.cookies.user_id;
+	//	console.log(id);
 	const user = users[id];
+	//console.log(urlForUsers(id, urlDatabase));
 	const templateVars = {
-		urls: urlDatabase,
+		urls: urlForUsers(id, urlDatabase),
 		user,
 	};
-	res.render("urls_index", templateVars); //first argument is the file/template and second is the object we want to use
+	if (!user) {
+		return res.status(401).send("To view your tinyUrls please login first");
+	}
+	res.render("urls_index", templateVars);
 });
+//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
 app.get("/login", (req, res) => {
 	const user = null;
@@ -83,26 +109,32 @@ app.post("/login", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
 	if (!email || !password) {
-		// return res.status(400).send("Please enter a valid email and password");
-		return res.render("urls_registration", {
+		res.status(403);
+		return res.render("urls_login", {
 			user: null,
 			error: "Try again: enter a valid email and password",
 		});
 	}
 	const userExists = findUserByEmail(email);
 	if (!userExists) {
-		return res.status(403).send("User not found please register");
+		res.status(403);
+		return res.render("urls_login", {
+			user: null,
+			error: "Try again: user doesn't exist",
+		});
 	}
 	if (userExists.password !== password) {
-		return res.status(403).send("Try again: wrong password");
+		res.status(403);
+		return res.render("urls_login", {
+			user: null,
+			error: "Try again: password doesn't match",
+		});
 	}
 	res.cookie("user_id", userExists.id);
 	return res.redirect("/urls");
 });
 
 app.post("/logout", (req, res) => {
-	// const id = req.body.user_id;
-	// res.cookie("user_id", id);
 	res.clearCookie("user_id");
 	return res.redirect("/urls");
 });
@@ -113,12 +145,10 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", (req, res) => {
-	console.log(req.body);
 	const email = req.body.email;
 	const password = req.body.password;
 	if (!email || !password) {
-		// return res.status(400).send("Please enter a valid email and password");
-		res.status(400);
+		res.status(401);
 		return res.render("urls_registration", {
 			user: null,
 			error: "Try again: enter a valid email and password",
@@ -126,16 +156,15 @@ app.post("/register", (req, res) => {
 	}
 	const userExists = findUserByEmail(email);
 	if (userExists) {
-		return res.status(401).send("Try again: email already exists");
-		//res.status(401);
-		// return res.render("urls_registration", {
-		// 	user: user.email,
-		// 	error: "Try again: email already exists",
-		// });
+		res.status(403);
+		return res.render("urls_registration", {
+			user: null,
+			error: "Try again: email already in use",
+		});
 	}
 	const id = generateRandomString(6);
 	users[id] = { id, email, password };
-	console.log("New users object", users);
+	//console.log("New users object", users);
 	res.cookie("user_id", id);
 	return res.redirect("/urls");
 });
@@ -143,54 +172,71 @@ app.post("/register", (req, res) => {
 //create short url
 app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
-	urlDatabase[shortURL] = req.body.longURL;
-	console.log(urlDatabase); // Log the POST request body to the console
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.cookies.user_id,
+	};
+	//console.log(urlDatabase); // Log the POST request body to the console
 	return res.redirect(`/urls/${shortURL}`);
 });
 
 app.get("/urls/new", (req, res) => {
+	//const userExists = findUserByEmail();
 	const id = req.cookies.user_id;
 	const user = users[id];
+	if (!user) {
+		return res.redirect("/login");
+	}
+
 	res.render("urls_new", { user });
 });
 
 app.get("/urls/:shortURL", (req, res) => {
 	const id = req.cookies.user_id;
 	const user = users[id];
+
 	const shortURL = req.params.shortURL;
-	const longURL = urlDatabase[shortURL];
-	console.log("shortURL", shortURL);
-	console.log("longURL", longURL);
+
+	const longURL = urlDatabase[shortURL].longURL;
+
 	const templateVars = { shortURL, longURL, user };
-	res.render("urls_show", templateVars);
+	return res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
-	const longURL = urlDatabase[req.params.shortURL];
+	const shortURL = req.params.shortURL;
+	const longURL = urlDatabase[shortURL].longURL;
 	return res.redirect(longURL);
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
 	const id = req.cookies.user_id;
-	const user = users[id];
-	//urlDatabase[req.params.shortURL] = req.body.longURL;
 	const shortURL = req.params.shortURL;
-	const longURL = urlDatabase[shortURL];
-	const templateVars = { shortURL, longURL, user };
-	return res.render("urls_show", templateVars);
+	if ((urlDatabase[shortURL].userID = id)) {
+		urlDatabase[shortURL] = {
+			longURL: req.body.longURL,
+			userID: req.cookies.user_id,
+		};
+	}
+	return res.redirect("/urls/:shortURL");
 });
 
 app.post("/urls/:shortURL/delete", (req, res) => {
+	const id = req.cookies.user_id;
 	const shortURL = req.params.shortURL;
-	console.log(urlDatabase[shortURL]);
-	delete urlDatabase[shortURL];
+	if ((urlDatabase[shortURL].userID = id)) {
+		delete urlDatabase[shortURL];
+	}
 	return res.redirect("/urls");
 });
+
 app.post("/urls/:shortURL", (req, res) => {
 	const shortURL = req.params.shortURL;
-	urlDatabase[shortURL] = req.body.longURL;
-	console.log(req.params);
-	console.log(urlDatabase);
+
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.cookies.user_id,
+	};
 	return res.redirect("/urls");
 });
 
