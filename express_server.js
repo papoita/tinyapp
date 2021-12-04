@@ -61,15 +61,14 @@ const findUserByEmail = (email) => {
 
 //helper function shoul return an object {shortUrl: longURL} to match our previous database forms
 const urlForUsers = function (userID, urlDatabase) {
-	const userUrlDatabase = {};
+	const newUrlDatabase = {};
 
 	for (let shortURL in urlDatabase) {
 		if (userID === urlDatabase[shortURL].userID) {
-			userUrlDatabase[shortURL] = urlDatabase[shortURL];
+			newUrlDatabase[shortURL] = urlDatabase[shortURL];
 		}
 	}
-	return userUrlDatabase;
-	//return newUrlDatabase;
+	return newUrlDatabase;
 };
 
 function generateRandomString() {
@@ -84,49 +83,35 @@ function generateRandomString() {
 	return result;
 }
 
-app.get("/urls.json", (req, res) => {
-	res.json(urlDatabase);
+app.get("/", (req, res) => {
+	//listen to get request / localhost8080
+	res.send("Hello!");
 });
 
-app.get("/register", (req, res) => {
-	const user = null;
-	res.render("urls_registration", { user, error: null });
+app.get("/hello", (req, res) => {
+	res.send("<html><body>Hello <b>World</b></body></html>\n");
 });
-
-//TODO revise if database has to change, correct way to pass in the crypto
-
-app.post("/register", (req, res) => {
-	const email = req.body.email;
-	const password = req.body.password;
-	const hashedPassword = bcrypt.hashSync(password, 10);
-	if (!email || !password) {
-		res.status(401);
-		return res.render("urls_registration", {
-			user: null,
-			error: "Try again: enter a valid email and password",
-		});
+//read main page
+app.get("/urls", (req, res) => {
+	const id = req.session.user_id;
+	//	console.log(id);
+	const user = users[id];
+	//console.log(urlForUsers(id, urlDatabase));
+	const templateVars = {
+		urls: urlForUsers(id, urlDatabase),
+		user,
+	};
+	if (!user) {
+		return res.status(401).send("To view your tinyUrls please login first");
 	}
-	const userExists = findUserByEmail(email);
-	if (userExists) {
-		res.status(403);
-		return res.render("urls_registration", {
-			user: null,
-			error: "Try again: email already in use",
-		});
-	}
-	const id = generateRandomString(6);
-	users[id] = { id, email, hashedPassword }; //check this!!
-	console.log("new objwect hashed", users[id]);
-	//res.cookie("user_id", id);
-	req.session.user_id = id;
-	return res.redirect("/urls");
+	res.render("urls_index", templateVars);
 });
+//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
 app.get("/login", (req, res) => {
 	const user = null;
 	res.render("urls_login", { user, error: null });
 });
-
 //TODO comapre passwords
 app.post("/login", (req, res) => {
 	const email = req.body.email;
@@ -163,36 +148,36 @@ app.post("/logout", (req, res) => {
 	return res.redirect("/urls");
 });
 
-//read main page
-//TODO how to include here my helper function, how does it work if my arguments an dparameters are called diff?)
-app.get("/urls", (req, res) => {
-	const id = req.session.user_id;
-	//	console.log(id);
-	const user = users[id];
-	//console.log(urlForUsers(id, urlDatabase));
-	const templateVars = {
-		urls: urlForUsers(id, urlDatabase),
-		user,
-	};
-	if (!user) {
-		return res.status(401).send("To view your tinyUrls please login first");
-	}
-	res.render("urls_index", templateVars);
+app.get("/register", (req, res) => {
+	const user = null;
+	res.render("urls_registration", { user, error: null });
 });
-//Trying to use the helper functions
-// app.get("/urls", (req, res) => {
-// 	const userUrlDatabase = urlForUsers(req.session.user_id, urlDatabase);
-
-// 	const templateVars = {
-// 		urls: userUrlDatabase,
-// 		user: users[req.session.user_id],
-// 	};
-// 	// if (!users[req.session.user_id]) {
-// 	// 	return res.status(401).send("To view your tinyUrls please login first");
-// 	// }
-// 	res.render("urls_index", templateVars);
-// });
-//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
+//TODO revise if database has to change, correct way to pass in the crypto
+app.post("/register", (req, res) => {
+	const email = req.body.email;
+	const password = req.body.password;
+	const hashedPassword = bcrypt.hashSync(password, 10);
+	if (!email || !password) {
+		res.status(401);
+		return res.render("urls_registration", {
+			user: null,
+			error: "Try again: enter a valid email and password",
+		});
+	}
+	const userExists = findUserByEmail(email);
+	if (userExists) {
+		res.status(403);
+		return res.render("urls_registration", {
+			user: null,
+			error: "Try again: email already in use",
+		});
+	}
+	const id = generateRandomString(6);
+	users[id] = { id, email, hashedPassword }; //check this!!
+	console.log("new objwect hashed", users[id]);
+	res.cookie("user_id", id);
+	return res.redirect("/urls");
+});
 
 //create short url
 app.post("/urls", (req, res) => {
@@ -215,40 +200,17 @@ app.get("/urls/new", (req, res) => {
 
 	res.render("urls_new", { user });
 });
-//truing to use the templateVars
-// app.get("/urls/new", (req, res) => {
-// 	//const userExists = findUserByEmail();
-
-// 	if (!users[req.session.user_id]) {
-// 		return res.redirect("/login");
-// 	}
-
-// 	const templateVars = {
-// 		urls: urlDatabase,
-// 		user: users[req.session.user_id],
-// 	};
-
-// 	res.render("urls_new", { templateVars });
-// });
 
 app.get("/urls/:shortURL", (req, res) => {
-	//another way of writting template vars
-	const shortURL = req.params.shortURL;
-	const longURL = urlDatabase[shortURL].longURL;
 	const id = req.session.user_id;
 	const user = users[id];
-	const templateVars = { shortURL, longURL, user };
-	return res.render("/urls_show", templateVars);
-});
 
-app.post("/urls/:shortURL", (req, res) => {
 	const shortURL = req.params.shortURL;
 
-	urlDatabase[shortURL] = {
-		longURL: req.body.longURL,
-		userID: req.session.user_id,
-	};
-	return res.redirect("/urls");
+	const longURL = urlDatabase[shortURL].longURL;
+
+	const templateVars = { shortURL, longURL, user };
+	return res.render("urls_show", templateVars);
 });
 
 app.get("/u/:shortURL", (req, res) => {
@@ -263,7 +225,7 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 	if ((urlDatabase[shortURL].userID = id)) {
 		urlDatabase[shortURL] = {
 			longURL: req.body.longURL,
-			userID: req.session.user_id,
+			userID: req.cookies.user_id,
 		};
 	}
 	return res.redirect("/urls/:shortURL");
@@ -276,6 +238,20 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 		delete urlDatabase[shortURL];
 	}
 	return res.redirect("/urls");
+});
+
+app.post("/urls/:shortURL", (req, res) => {
+	const shortURL = req.params.shortURL;
+
+	urlDatabase[shortURL] = {
+		longURL: req.body.longURL,
+		userID: req.session.user_id,
+	};
+	return res.redirect("/urls");
+});
+
+app.get("/urls.json", (req, res) => {
+	res.json(urlDatabase);
 });
 
 //catch all in case the page is not found
