@@ -6,6 +6,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
 
+const { findUserByEmail } = require("./helpers.js");
 const PORT = 8080; // default port 8080
 const app = express();
 
@@ -48,17 +49,6 @@ const users = {
 	},
 };
 
-//helper function find if user exists
-const findUserByEmail = (email) => {
-	for (const user_id in users) {
-		//const user = users[user_id];
-		console.log("test", users[user_id]);
-		if (users[user_id].email === email) {
-			return users[user_id];
-		}
-	}
-	return null;
-};
 //urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
 // const urlDatabase = {
@@ -135,7 +125,7 @@ app.post("/login", (req, res) => {
 			error: "Try again: enter a valid email and password",
 		});
 	}
-	const userExists = findUserByEmail(email);
+	const userExists = findUserByEmail(email, users);
 	console.log("userExists", userExists);
 	//	console.log("id", id);
 	console.log(userExists.id);
@@ -181,7 +171,7 @@ app.post("/register", (req, res) => {
 			error: "Try again: enter a valid email and password",
 		});
 	}
-	const userExists = findUserByEmail(email);
+	const userExists = findUserByEmail(email, users);
 	if (userExists) {
 		res.status(403);
 		return res.render("urls_registration", {
