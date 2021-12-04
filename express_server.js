@@ -6,7 +6,7 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
 
-const { findUserByEmail } = require("./helpers.js");
+const { findUserByEmail, urlForUsers } = require("./helpers.js");
 const PORT = 8080; // default port 8080
 const app = express();
 
@@ -47,25 +47,6 @@ const users = {
 		hashedPassword:
 			"$2b$10$Ymt2wBv7I.mrCrZcMKU/nO2xUuTe0G6qqcWlWKOzFMoWsWtEzt7Lu",
 	},
-};
-
-//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
-
-// const urlDatabase = {
-// 	b2xVn2: "http://www.lighthouselabs.ca",
-// 	"9sm5xK": "http://www.google.com",
-// };
-
-//helper function shoul return an object {shortUrl: longURL} to match our previous database forms
-const urlForUsers = function (userID, urlDatabase) {
-	const newUrlDatabase = {};
-
-	for (let shortURL in urlDatabase) {
-		if (userID === urlDatabase[shortURL].userID) {
-			newUrlDatabase[shortURL] = urlDatabase[shortURL];
-		}
-	}
-	return newUrlDatabase;
 };
 
 function generateRandomString() {

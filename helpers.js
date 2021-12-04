@@ -1,6 +1,6 @@
 /** @format */
 
-//helper function find if user exists
+//find if user id exists
 const findUserByEmail = (email, database) => {
 	for (const user in database) {
 		//const user = users[user_id];
@@ -12,4 +12,15 @@ const findUserByEmail = (email, database) => {
 	return undefined;
 };
 
-module.exports = { findUserByEmail };
+//return an object {shortUrl: longURL} to match previous database forms
+const urlForUsers = function (userID, urlDatabase) {
+	const newUrlDatabase = {};
+
+	for (let shortURL in urlDatabase) {
+		if (userID === urlDatabase[shortURL].userID) {
+			newUrlDatabase[shortURL] = urlDatabase[shortURL];
+		}
+	}
+	return newUrlDatabase;
+};
+module.exports = { findUserByEmail, urlForUsers };
