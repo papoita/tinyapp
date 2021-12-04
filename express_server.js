@@ -6,7 +6,11 @@ const bodyParser = require("body-parser");
 const cookieSession = require("cookie-session");
 const bcrypt = require("bcrypt");
 
-const { findUserByEmail, urlForUsers } = require("./helpers.js");
+const {
+	findUserByEmail,
+	urlForUsers,
+	generateRandomString,
+} = require("./helpers.js");
 const PORT = 8080; // default port 8080
 const app = express();
 
@@ -49,17 +53,6 @@ const users = {
 	},
 };
 
-function generateRandomString() {
-	var result = "";
-	var characters =
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-	var charactersLength = characters.length;
-	for (var i = 0; i < 6; i++) {
-		result += characters.charAt(Math.floor(Math.random() * charactersLength));
-	}
-
-	return result;
-}
 app.get("/", (req, res) => {
 	return res.redirect("/login");
 });
