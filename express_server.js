@@ -68,7 +68,12 @@ app.get("/urls", (req, res) => {
 		user,
 	};
 	if (!user) {
-		return res.status(401).send("To view your tinyUrls please login first");
+		// return res.status(401).send("To view your tinyUrls please login first");
+		res.status(401);
+		return res.render("urls_login", {
+			user: null,
+			error: "To view your tinyUrls please login first",
+		});
 	}
 	res.render("urls_index", templateVars);
 });
