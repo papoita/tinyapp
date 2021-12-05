@@ -37,10 +37,10 @@ use template engines to render web pages server side
 
 ## Screenshots
 
-[Login page](https://github.com/papoita/tinyapp/blob/master/docs/login.png)
+!["Login page"](https://github.com/papoita/tinyapp/blob/master/docs/login.png)
 
-[New URL](https://github.com/papoita/tinyapp/blob/master/docs/newURL.png)
+!["New URL"](https://github.com/papoita/tinyapp/blob/master/docs/newURL.png)
 
-[Editing URLs](https://github.com/papoita/tinyapp/blob/master/docs/editURL.png)
+!["Editing URLs"](https://github.com/papoita/tinyapp/blob/master/docs/editURL.png)
 
-[All my URLs](https://github.com/papoita/tinyapp/blob/master/docs/urls.png)
+!["All my URLs"](https://github.com/papoita/tinyapp/blob/master/docs/urls.png)
