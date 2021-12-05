@@ -34,3 +34,13 @@ use template engines to render web pages server side
 
 - Install all dependencies (using the `npm install` command).
 - Run the development web server using the `node express_server.js` command.
+
+## Screenshots
+
+[Login page](https://github.com/papoita/tinyapp/blob/master/docs/login.png)
+
+[New URL](https://github.com/papoita/tinyapp/blob/master/docs/newURL.png)
+
+[Editing URLs](https://github.com/papoita/tinyapp/blob/master/docs/editURL.png)
+
+[All my URLs](https://github.com/papoita/tinyapp/blob/master/docs/urls.png)
