@@ -11,7 +11,7 @@ const {
 	urlForUsers,
 	generateRandomString,
 } = require("./helpers.js");
-const PORT = 8080; // default port 8080
+const PORT = 8080;
 const app = express();
 
 app.use(morgan("short"));
@@ -24,7 +24,7 @@ app.use(
 	})
 );
 
-app.set("view engine", "ejs"); //this is how we are processing views
+app.set("view engine", "ejs");
 
 //app.use(express.static("public"));//if wanted to have a css file static vs the dynamic ejs
 
@@ -34,7 +34,6 @@ const urlDatabase = {
 };
 
 const users = {
-	//savein browser and validate if user
 	aJ48lW: {
 		id: "aJ48lW",
 		email: "1@1",
@@ -57,18 +56,15 @@ app.get("/", (req, res) => {
 	return res.redirect("/login");
 });
 
-//read main page
 app.get("/urls", (req, res) => {
 	const id = req.session.user_id;
-	//	console.log(id);
 	const user = users[id];
-	//console.log(urlForUsers(id, urlDatabase));
 	const templateVars = {
 		urls: urlForUsers(id, urlDatabase),
 		user,
 	};
+
 	if (!user) {
-		// return res.status(401).send("To view your tinyUrls please login first");
 		res.status(401);
 		return res.render("urls_login", {
 			user: null,
@@ -77,7 +73,6 @@ app.get("/urls", (req, res) => {
 	}
 	res.render("urls_index", templateVars);
 });
-//urlDatabase { shortURL, shortURL.longURL, shortURL.userID}
 
 app.post("/urls", (req, res) => {
 	const shortURL = generateRandomString(6);
@@ -85,7 +80,6 @@ app.post("/urls", (req, res) => {
 		longURL: req.body.longURL,
 		userID: req.session.user_id,
 	};
-	//console.log(urlDatabase); // Log the POST request body to the console
 	return res.redirect(`/urls/${shortURL}`);
 });
 
@@ -93,7 +87,7 @@ app.get("/login", (req, res) => {
 	const user = null;
 	res.render("urls_login", { user, error: null });
 });
-//TODO comapre passwords
+
 app.post("/login", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -105,10 +99,6 @@ app.post("/login", (req, res) => {
 		});
 	}
 	const userExists = findUserByEmail(email, users);
-	console.log("userExists", userExists);
-	//	console.log("id", id);
-	//console.log(userExists.id);
-
 	if (!userExists) {
 		res.status(403);
 		return res.render("urls_login", {
@@ -116,7 +106,6 @@ app.post("/login", (req, res) => {
 			error: "Try again: user doesn't exist",
 		});
 	}
-	//if (userExists.password !== password) {
 	if (!bcrypt.compareSync(password, userExists.hashedPassword)) {
 		res.status(403);
 		return res.render("urls_login", {
@@ -124,7 +113,6 @@ app.post("/login", (req, res) => {
 			error: "Try again: password doesn't match",
 		});
 	}
-	console.log("userexists?", userExists.id);
 	req.session.user_id = userExists.id;
 	return res.redirect("/urls");
 });
@@ -138,7 +126,7 @@ app.get("/register", (req, res) => {
 	const user = null;
 	res.render("urls_registration", { user, error: null });
 });
-//TODO revise if database has to change, correct way to pass in the crypto
+
 app.post("/register", (req, res) => {
 	const email = req.body.email;
 	const password = req.body.password;
@@ -159,31 +147,25 @@ app.post("/register", (req, res) => {
 		});
 	}
 	const id = generateRandomString(6);
-	users[id] = { id, email, hashedPassword }; //check this!!
-	console.log("new objwect hashed", users[id]);
+	users[id] = { id, email, hashedPassword };
 	req.session.user_id = id;
 	return res.redirect("/urls");
 });
 
 app.get("/urls/new", (req, res) => {
-	//const userExists = findUserByEmail();
 	const id = req.session.user_id;
 	const user = users[id];
 	if (!user) {
 		return res.redirect("/login");
 	}
-
 	res.render("urls_new", { user });
 });
 
 app.get("/urls/:shortURL", (req, res) => {
 	const id = req.session.user_id;
 	const user = users[id];
-
 	const shortURL = req.params.shortURL;
-
 	const longURL = urlDatabase[shortURL].longURL;
-
 	const templateVars = { shortURL, longURL, user };
 	return res.render("urls_show", templateVars);
 });
@@ -217,7 +199,6 @@ app.post("/urls/:shortURL/delete", (req, res) => {
 
 app.post("/urls/:shortURL", (req, res) => {
 	const shortURL = req.params.shortURL;
-
 	urlDatabase[shortURL] = {
 		longURL: req.body.longURL,
 		userID: req.session.user_id,
@@ -229,10 +210,10 @@ app.get("/urls.json", (req, res) => {
 	res.json(urlDatabase);
 });
 
-//catch all in case the page is not found
 app.get("* ", (req, res) => {
 	res.send("Page not found");
 });
+
 app.listen(PORT, () => {
 	console.log(`Example app listening on port ${PORT}!`);
 });
